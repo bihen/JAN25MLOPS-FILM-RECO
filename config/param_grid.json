@@ -1,0 +1,47 @@
+{
+  "svd": {
+    "model": "SVD",
+    "param_grid": {
+      "n_factors": [50, 100, 150],
+      "n_epochs": [20, 50],
+      "lr_all": [0.005, 0.01],
+      "reg_all": [0.02, 0.1]
+    }
+  },
+  "svdpp": {
+    "model": "SVDpp",
+    "param_grid": {
+      "n_factors": [50, 100, 150],
+      "n_epochs": [20, 50],
+      "lr_all": [0.005, 0.01],
+      "reg_all": [0.02, 0.1]
+    }
+  },
+  "slopeone": {
+    "model": "SlopeOne",
+    "param_grid": {
+      "maxRecsPerItem": [1, 10, 20],
+      "minRatedCount": ["empty", 5, 10]
+    }
+  },
+  "knnwithmeans": {
+    "model": "KNNWithMeans",
+    "param_grid": {
+      "n_neighbors": [1,10, 1],
+      "leaf_size": [20,40,1],
+      "p": [1,2],
+      "weights": ["uniform", "distance"],
+      "metric": ["minkowski", "chebyshev"]
+    }
+  },
+  "knnbaseline": {
+    "model": "KNNBasline",
+    "param_grid": {
+      "n_neighbors": [1,10, 1],
+      "leaf_size": [20,40,1],
+      "p": [1,2],
+      "weights": ["uniform", "distance"],
+      "metric": ["minkowski", "chebyshev"]
+    }
+  }
+}
