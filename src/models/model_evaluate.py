@@ -4,7 +4,6 @@ import json
 from pathlib import Path
 import logging
 from surprise import accuracy
-from surprise.model_selection import cross_validate, GridSearchCV
 import joblib
 import os
 import mlflow
