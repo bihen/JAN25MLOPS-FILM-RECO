@@ -1,0 +1,4 @@
+[core]
+    remote = origin
+['remote "origin"']
+    url = https://dagshub.com/bihen/JAN25MLOPS-FILM-RECO.dvc
