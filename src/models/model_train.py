@@ -3,9 +3,9 @@ import numpy as np
 import json
 from pathlib import Path
 import logging
-from sklearn.linear_model import ElasticNet, Ridge, Lasso
-from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.metrics import mean_squared_error
+from surprise import SVD, SVDpp, SlopeOne, KNNWithMeans, KNNBaseline
+from surprise import accuracy
+from surprise.model_selection import cross_validate, GridSearchCV
 import joblib
 import os
 
@@ -17,12 +17,13 @@ CONFIG_FOLDER = BASE_DIR / "config"
 
 # Mapping for model names to classes
 MODEL_MAPPING = {
-    "ridge": Ridge,
-    "elasticnet": ElasticNet,
-    "lasso": Lasso,
-    "randomforestregressor": RandomForestRegressor,
-    "gradientboostingregressor": GradientBoostingRegressor
+    "svd": SVD,
+    "svdpp": SVDpp,
+    "slopeone": SlopeOne,
+    "knnwithmeans": KNNWithMeans,
+    "knnbaseline": KNNBaseline
 }
+
 
 def load_config():
     """
@@ -51,51 +52,66 @@ def main():
     logger = logging.getLogger(__name__)
     logger.info(f'Training model {model_name}')
     
-    input_filepath_test_x = os.path.join(INPUT_FOLDER, "X_test_scaled.csv")
-    input_filepath_train_x = os.path.join(INPUT_FOLDER, "X_train_scaled.csv")
-    input_filepath_test_y = os.path.join(INPUT_FOLDER, "y_test.csv")
-    inpút_filepath_train_y = os.path.join(INPUT_FOLDER, "y_train.csv")
+    input_filepath_train = os.path.join(INPUT_FOLDER, "trainset.data")
     output_folderpath = OUTPUT_FOLDER
     
     # Call the main data processing function with the provided file paths
-    train_model(input_filepath_test_x, input_filepath_train_x, 
-                 input_filepath_test_y, inpút_filepath_train_y,
+    train_model(input_filepath_train, 
                  output_folderpath,
                  model_class, best_params)
 
-def train_model(input_filepath_test_x, input_filepath_train_x, 
-                 input_filepath_test_y, inpút_filepath_train_y, 
+def train_model(input_filepath_train, 
                  output_folderpath,
                  model, best_params):
  
-    #--Importing dataset
-    X_train = pd.read_csv(input_filepath_train_x, sep=",")
-    X_test = pd.read_csv(input_filepath_test_x, sep=",")
-    y_train = pd.read_csv(inpút_filepath_train_y, sep=",")
-    y_test = pd.read_csv(input_filepath_test_y, sep=",")
+    #--Importing dataset  
+    trainset = joblib.load(input_filepath_train)
     
-    y_train = y_train.values.ravel()
-    y_test = y_test.values.ravel()
-    
-    trained_model = model()
-    trained_model.set_params(**best_params)
-    trained_model.fit(X_train, y_train)
+    trained_model = model(**best_params)
+    trained_model.fit(trainset)
 
     print(f"Training complete with parameters: {best_params}")
-    
-    
     
     # Create folder if necessary 
     if check_existing_folder(output_folderpath) :
         os.makedirs(output_folderpath)
 
     #--Saving the best params in .pkl file
-    for file, filename in zip([trained_model], ['trained_model']):
-        output_filepath = os.path.join(output_folderpath, f'{filename}.pkl')
-        if check_existing_file(output_filepath):
-            joblib.dump(trained_model, output_filepath)
+    output_filepath = os.path.join(output_folderpath, 'trained_model.pkl')
+    if check_existing_file(output_filepath):
+        joblib.dump(trained_model, output_filepath)
             
-
+            
+def check_existing_file(file_path):
+    '''Check if a file already exists. If it does, ask if we want to overwrite it.'''
+    if os.path.isfile(file_path):
+        while True:
+            response = input(f"File {os.path.basename(file_path)} already exists. Do you want to overwrite it? (y/n): ")
+            if response.lower() == 'y':
+                return True
+            elif response.lower() == 'n':
+                return False
+            else:
+                print("Invalid response. Please enter 'y' or 'n'.")
+    else:
+        return True
+    
+    
+def check_existing_folder(folder_path):
+    '''Check if a folder already exists. If it doesn't, ask if we want to create it.'''
+    if os.path.exists(folder_path) == False :
+        while True:
+            response = input(f"{os.path.basename(folder_path)} doesn't exists. Do you want to create it? (y/n): ")
+            if response.lower() == 'y':
+                return True
+            elif response.lower() == 'n':
+                return False
+            else:
+                print("Invalid response. Please enter 'y' or 'n'.")
+    else:
+        return False
+    
+    
 if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     logging.basicConfig(level=logging.INFO, format=log_fmt)

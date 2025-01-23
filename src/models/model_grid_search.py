@@ -72,18 +72,21 @@ def find_best_params(input_filepath_data,
     #--Importing dataset
     data = joblib.load(input_filepath_data)
     
+    # Creating model of class model
+    selected_model = model
+    
     # Perform Grid Search Cross Validation
-    grid_search = GridSearchCV(model, param_grid, measures=['rmse'], cv=3, n_jobs=-1)
+    grid_search = GridSearchCV(selected_model, param_grid=param_grid, measures=['rmse'], cv=3, n_jobs=-1)
 
-    # Fit the grid searchz6t
+    # Fit the grid search
     grid_search.fit(data)
 
     # Get the best score and best parameters
     print(f"Best RMSE score obtained: {grid_search.best_score['rmse']:.4f}")
     print(f"Best parameters: {grid_search.best_params['rmse']}")
     
-    best_params = grid_search.best_params_
-    best_score = grid_search.best_score_
+    best_params = grid_search.best_params['rmse']
+    best_score = grid_search.best_score
     
     print(f"Best parameters: {best_params}")
     print(f"Best score: {best_score}")
@@ -111,10 +114,9 @@ def get_model_and_params(model_name, param_grid):
         if not model_class:
             raise ValueError(f"Model '{model_name}' not found in MODEL_MAPPING.")
         
-        model = model_class()  # Instantiate the model
         param_grid = model_config['param_grid']  # Extract the parameter grid
         
-        return model, param_grid
+        return model_class, param_grid
     else:
         raise ValueError(f"Model '{model_name}' not found in param_grid.")
     
