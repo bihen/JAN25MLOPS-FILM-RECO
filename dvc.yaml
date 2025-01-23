@@ -1,3 +1,5 @@
+# Example dvc.yaml, to be changed
+
 stages:
   split:
     cmd: python -m src.data.data_splitting
