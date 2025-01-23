@@ -82,9 +82,6 @@ def find_best_params(input_filepath_data,
     grid_search.fit(data)
 
     # Get the best score and best parameters
-    print(f"Best RMSE score obtained: {grid_search.best_score['rmse']:.4f}")
-    print(f"Best parameters: {grid_search.best_params['rmse']}")
-    
     best_params = grid_search.best_params['rmse']
     best_score = grid_search.best_score
     
