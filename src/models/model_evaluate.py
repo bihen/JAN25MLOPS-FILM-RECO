@@ -17,7 +17,7 @@ METRICS_FOLDER = BASE_DIR / "metrics"
 OUTPUT_FOLDER = BASE_DIR / "data" / "processed"
 
 # DagsHub integration for MLflow
-#dagshub.init(repo_owner='bihen', repo_name='examen-dvc', mlflow=True)
+dagshub.init(repo_owner='bihen', repo_name='JAN25MLOPS-FILM-RECO', mlflow=True)
 
 # Main function
 def main():
@@ -34,11 +34,11 @@ def main():
     metrics = evaluate_model(model, testset)
 
     logger.info(f"Model evaluation metrics: {metrics}")
-    #with mlflow.start_run():
-    #    for metric_name, metric_value in metrics.items():
-    #        mlflow.log_metric(metric_name, metric_value)
-    #    mlflow.log_param("model_evaluate", "complete")
-    #    print("Metrics logged to MLflow via DagsHub.")
+    with mlflow.start_run():
+        for metric_name, metric_value in metrics.items():
+            mlflow.log_metric(metric_name, metric_value)
+        mlflow.log_param("model_evaluate", "complete")
+        print("Metrics logged to MLflow via DagsHub.")
         
         
 # Evaluate the model
