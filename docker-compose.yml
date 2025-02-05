@@ -20,7 +20,8 @@ services:
       - ./models:/app/models
       - ./metrics:/app/metrics
     depends_on:
-      - data_split 
+      data_split:
+        condition: service_completed_successfully
 
   model_train:
     build: .
@@ -31,7 +32,8 @@ services:
       - ./models:/app/models
       - ./metrics:/app/metrics
     depends_on:
-      - grid_search  
+      grid_search:
+        condition: service_completed_successfully 
 
   model_evaluate:
     build: .
@@ -42,4 +44,5 @@ services:
       - ./models:/app/models
       - ./metrics:/app/metrics
     depends_on:
-      - model_train
+      model_train:
+        condition: service_completed_successfully 
