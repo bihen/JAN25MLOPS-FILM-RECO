@@ -35,9 +35,11 @@ jobs:
       env:
         GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
         GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
+        GDRIVE_CREDENTIALS_DATA: ${{ secrets.GDRIVE_CREDENTIALS_DATA}}
       run: |
         dvc remote modify gdrive --local gdrive_client_id  $GDRIVE_CLIENT_ID
         dvc remote modify gdrive --local gdrive_client_secret $GDRIVE_CLIENT_SECRET 
+        dvc remote modify gdrive --local GDRIVE_CREDENTIALS_DATA $GDRIVE_CREDENTIALS_DATA
         dvc pull
 
     # Data Splitting
