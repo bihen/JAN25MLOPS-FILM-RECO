@@ -37,7 +37,8 @@ jobs:
         DVC_ACCESS_KEY: ${{ secrets.DVC_ACCESS_KEY_ID }}
         DVC_SECRET_KEY: ${{ secrets.DVC_SECRET_ACCESS_KEY }}
       run: |
-        dvc remote add origin $DVC_REMOTE_URL --force
+        dvc remote add origin s3://dvc --force
+        dvc remote modify origin endpointurl $DVC_REMOTE_URL
         dvc remote default origin
         dvc remote modify origin --local access_key_id  $DVC_ACCESS_KEY
         dvc remote modify origin --local secret_access_key $DVC_SECRET_KEY 
