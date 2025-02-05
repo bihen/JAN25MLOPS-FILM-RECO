@@ -40,6 +40,9 @@ jobs:
         dvc remote modify gdrive --local gdrive_client_id  $GDRIVE_CLIENT_ID
         dvc remote modify gdrive --local gdrive_client_secret $GDRIVE_CLIENT_SECRET 
         dvc remote modify gdrive --local GDRIVE_CREDENTIALS_DATA $GDRIVE_CREDENTIALS_DATA
+        dvc remote modify gdrive gdrive_use_service_account true
+        echo "$GDRIVE_CREDENTIALS_JSON" > gdrive-credentials.json
+        dvc remote modify gdrive --local gdrive_service_account_json_file_path gdrive-credentials.json
         dvc pull
 
     # Data Splitting
