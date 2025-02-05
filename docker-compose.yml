@@ -1,0 +1,45 @@
+version: "3.10"
+
+services:
+  data_split:
+    build: .
+    container_name: data_split
+    command: ["python", "src/data/data_split.py"]
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./metrics:/app/metrics
+    depends_on: []
+
+  grid_search:
+    build: .
+    container_name: grid_search
+    command: ["python", "src/models/model_grid_search.py"]
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./metrics:/app/metrics
+    depends_on:
+      - data_split 
+
+  model_train:
+    build: .
+    container_name: model_train
+    command: ["python", "src/models/model_train.py"]
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./metrics:/app/metrics
+    depends_on:
+      - grid_search  
+
+  model_evaluate:
+    build: .
+    container_name: model_evaluate
+    command: ["python", "src/models/model_evaluate.py"]
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./metrics:/app/metrics
+    depends_on:
+      - model_train
