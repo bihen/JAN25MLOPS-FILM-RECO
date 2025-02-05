@@ -1,0 +1,5 @@
+outs:
+- md5: 51cbea5074106ad6f75f63992caab137
+  size: 338895
+  hash: md5
+  path: testset.data

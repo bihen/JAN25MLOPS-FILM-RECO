@@ -1,5 +1,9 @@
 [core]
-    remote = origin
+    remote = gdrive
 ['remote "origin"']
     url = s3://dvc
     endpointurl = https://dagshub.com/bihen/JAN25MLOPS-FILM-RECO.s3
+['remote "gdrive"']
+    url = gdrive://1zyTIzNvRJlFWBSgt4PaphAvDIuL79H98
+    gdrive_acknowledge_abuse = true
+    
