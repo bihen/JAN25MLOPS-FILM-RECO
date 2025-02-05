@@ -46,6 +46,11 @@ jobs:
         dvc remote modify gdrive --local gdrive_service_account_json_file_path gdrive-credentials.json
         dvc pull
 
+    - name: Set up API token
+      env:
+        DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_USER_TOKEN }}
+      run: echo "API token is set"
+
     # Data Splitting
     - name: Run Data Splitting
       run: python src/data/data_split.py

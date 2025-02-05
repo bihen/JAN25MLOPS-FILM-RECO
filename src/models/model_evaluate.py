@@ -1,3 +1,4 @@
+import dagshub.auth
 import pandas as pd
 import numpy as np
 import json
@@ -15,8 +16,10 @@ MODEL_FOLDER = BASE_DIR / "models"
 METRICS_FOLDER = BASE_DIR / "metrics"
 OUTPUT_FOLDER = BASE_DIR / "data" / "processed"
 
-# DagsHub integration for MLflow
-#dagshub.init(repo_owner='bihen', repo_name='JAN25MLOPS-FILM-RECO', mlflow=True)
+# DagsHub integration for MLflow#
+DAGSHUB_USER_TOKEN = os.getenv('DAGSHUB_USER_TOKEN')
+dagshub.auth.add_app_token(token=DAGSHUB_USER_TOKEN)
+dagshub.init(repo_owner='bihen', repo_name='JAN25MLOPS-FILM-RECO', mlflow=True)
 
 # Main function
 def main():
