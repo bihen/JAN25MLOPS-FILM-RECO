@@ -67,9 +67,9 @@ def evaluate_model(model, testset):
     #--Saving the best params in .pkl file
     
     output_filepath = os.path.join(METRICS_FOLDER, 'metrics.json')
-    if check_existing_file(output_filepath):
-        with open(output_filepath, "w", encoding="utf-8") as output_filepath:
-            json.dump(metrics, output_filepath, indent=4, ensure_ascii=False)
+
+    with open(output_filepath, "w", encoding="utf-8") as output_filepath:
+        json.dump(metrics, output_filepath, indent=4, ensure_ascii=False)
 
     return metrics
 
@@ -94,35 +94,13 @@ def load_test_data():
     testset = joblib.load(os.path.join(INPUT_FOLDER, "testset.data"))
     return testset
 
-
-def check_existing_file(file_path):
-    '''Check if a file already exists. If it does, ask if we want to overwrite it.'''
-    if os.path.isfile(file_path):
-        while True:
-            response = input(f"File {os.path.basename(file_path)} already exists. Do you want to overwrite it? (y/n): ")
-            if response.lower() == 'y':
-                return True
-            elif response.lower() == 'n':
-                return False
-            else:
-                print("Invalid response. Please enter 'y' or 'n'.")
-    else:
-        return True
-    
-    
+   
+       
 def check_existing_folder(folder_path):
-    '''Check if a folder already exists. If it doesn't, ask if we want to create it.'''
+    '''Check if a folder already exists.'''
     if os.path.exists(folder_path) == False :
-        while True:
-            response = input(f"{os.path.basename(folder_path)} doesn't exists. Do you want to create it? (y/n): ")
-            if response.lower() == 'y':
-                return True
-            elif response.lower() == 'n':
-                return False
-            else:
-                print("Invalid response. Please enter 'y' or 'n'.")
+        return True
     else:
         return False
-    
 if __name__ == '__main__':
     main()

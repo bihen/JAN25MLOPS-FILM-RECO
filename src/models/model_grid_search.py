@@ -96,8 +96,8 @@ def find_best_params(input_filepath_data,
     #--Saving the best params in .pkl file
     for file, filename in zip([best_params], ['best_params']):
         output_filepath = os.path.join(output_folderpath, f'{filename}.pkl')
-        if check_existing_file(output_filepath):
-            joblib.dump(best_params, output_filepath)
+        joblib.dump(best_params, output_filepath)
+            
             
 def get_model_and_params(model_name, param_grid):
     """
@@ -118,32 +118,12 @@ def get_model_and_params(model_name, param_grid):
         raise ValueError(f"Model '{model_name}' not found in param_grid.")
     
     
-def check_existing_file(file_path):
-    '''Check if a file already exists. If it does, ask if we want to overwrite it.'''
-    if os.path.isfile(file_path):
-        while True:
-            response = input(f"File {os.path.basename(file_path)} already exists. Do you want to overwrite it? (y/n): ")
-            if response.lower() == 'y':
-                return True
-            elif response.lower() == 'n':
-                return False
-            else:
-                print("Invalid response. Please enter 'y' or 'n'.")
-    else:
-        return True
-    
-    
+            
+       
 def check_existing_folder(folder_path):
-    '''Check if a folder already exists. If it doesn't, ask if we want to create it.'''
+    '''Check if a folder already exists.'''
     if os.path.exists(folder_path) == False :
-        while True:
-            response = input(f"{os.path.basename(folder_path)} doesn't exists. Do you want to create it? (y/n): ")
-            if response.lower() == 'y':
-                return True
-            elif response.lower() == 'n':
-                return False
-            else:
-                print("Invalid response. Please enter 'y' or 'n'.")
+        return True
     else:
         return False
     
