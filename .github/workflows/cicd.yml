@@ -41,6 +41,8 @@ jobs:
         dvc remote modify gdrive --local gdrive_client_secret $GDRIVE_CLIENT_SECRET 
         dvc remote modify gdrive gdrive_use_service_account true
         echo "$GDRIVE_CREDENTIALS_JSON" > gdrive-credentials.json
+        echo "$GDRIVE_CREDENTIALS_JSON" | head -n 5  
+        cat gdrive-credentials.json | jq . > /dev/null || echo "Invalid JSON!"
         dvc remote modify gdrive --local gdrive_service_account_json_file_path gdrive-credentials.json
         dvc pull
 
