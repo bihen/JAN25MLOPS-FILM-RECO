@@ -16,7 +16,7 @@ METRICS_FOLDER = BASE_DIR / "metrics"
 OUTPUT_FOLDER = BASE_DIR / "data" / "processed"
 
 # DagsHub integration for MLflow
-dagshub.init(repo_owner='bihen', repo_name='JAN25MLOPS-FILM-RECO', mlflow=True)
+#dagshub.init(repo_owner='bihen', repo_name='JAN25MLOPS-FILM-RECO', mlflow=True)
 
 # Main function
 def main():
