@@ -54,7 +54,7 @@ jobs:
       env:
         DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_USER_TOKEN }}
       run: |
-        echo $DAGSHUB_USER_TOKEN > ~/.env
+        echo $DAGSHUB_USER_TOKEN > .env
         echo "API token is set"
 
     - name: Start docker-compose
