@@ -38,6 +38,10 @@ services:
   model_evaluate:
     build: .
     container_name: model_evaluate
+    env_file:
+      - .env
+    environment:
+      - DAGSHUB_USER_TOKEN=${DAGSHUB_USER_TOKEN}
     command: ["python", "src/models/model_evaluate.py"]
     volumes:
       - ./data:/app/data
