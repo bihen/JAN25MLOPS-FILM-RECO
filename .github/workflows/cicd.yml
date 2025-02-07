@@ -31,6 +31,8 @@ jobs:
         pip install -r requirements.txt
         pip install dvc
         pip install docker
+        pip install "cython<3.0.0" wheel --break-system-packages
+        pip install pyyaml==5.4.1 --no-build-isolation  --break-system-packages
         pip install docker-compose
 
     - name: Configure DVC and pull data
