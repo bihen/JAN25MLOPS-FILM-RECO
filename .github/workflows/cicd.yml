@@ -61,6 +61,7 @@ jobs:
       run: |
         sudo systemctl start docker
         sudo systemctl status docker  
+        run: echo "DOCKER_API_VERSION=1.41" >> $GITHUB_ENV
 
     - name: build docker containers
       env:
