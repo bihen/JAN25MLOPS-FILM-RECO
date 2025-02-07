@@ -30,6 +30,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install dvc
+        pip uninstall -y docker
+        pip install "cython<3.0.0" wheel --break-system-packages
+        pip install pyyaml==5.4.1 --no-build-isolation  --break-system-packages
+    
+    - name: Install Docker-Compose
+      run: |
+        sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        sudo chmod +x /usr/local/bin/docker-compose
+        docker-compose version
+
 
     - name: Configure DVC and pull data
       env:
@@ -50,10 +60,24 @@ jobs:
       env:
         DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_USER_TOKEN }}
       run: |
-        echo $DAGSHUB_USER_TOKEN > ~/.env
+        echo "DAGSHUB_USER_TOKEN=${DAGSHUB_USER_TOKEN}" > .env
         echo "API token is set"
 
+    - name: Set up Docker
+      run: |
+        sudo systemctl start docker
+        sudo systemctl status docker  
+        echo "DOCKER_API_VERSION=1.41" >> $GITHUB_ENV
+
+    - name: build docker containers
+      env:
+        DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_USER_TOKEN }}
+      run: |
+        docker-compose build
+
     - name: Start docker-compose
+      env:
+        DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_USER_TOKEN }}
       run: |
         docker-compose up 
 
