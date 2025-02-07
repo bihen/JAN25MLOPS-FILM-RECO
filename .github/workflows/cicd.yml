@@ -49,21 +49,31 @@ jobs:
     - name: Set up API token
       env:
         DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_USER_TOKEN }}
-      run: echo "API token is set"
+      run: |
+        echo $DAGSHUB_USER_TOKEN > ~/.env
+        echo "API token is set"
+
+    - name: Start docker-compose
+      run: |
+        docker-compose up 
+
+    - name: Clean up docker-compose
+      run: |
+        docker-compose down 
 
     # Data Splitting
-    - name: Run Data Splitting
-      run: python src/data/data_split.py
+    #- name: Run Data Splitting
+    #  run: python src/data/data_split.py
 
     # Grid Search for Best Model Parameters
-    - name: Run Grid Search
-      run: python src/models/model_grid_search.py
+    #- name: Run Grid Search
+    #  run: python src/models/model_grid_search.py
 
     # Model Training
-    - name: Train Model
-      run: python src/models/model_train.py
+    #- name: Train Model
+    #  run: python src/models/model_train.py
 
     # Model Evaluation
-    - name: Evaluate Model
-      run: python src/models/model_evaluate.py
+    #- name: Evaluate Model
+    #  run: python src/models/model_evaluate.py
 
