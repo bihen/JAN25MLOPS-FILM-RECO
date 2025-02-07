@@ -56,7 +56,12 @@ jobs:
       run: |
         echo "DAGSHUB_USER_TOKEN=${DAGSHUB_USER_TOKEN}" > .env
         echo "API token is set"
-        
+
+    - name: Set up Docker
+      run: |
+        sudo systemctl start docker
+        sudo systemctl status docker  
+
     - name: build docker containers
       env:
         DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_USER_TOKEN }}
