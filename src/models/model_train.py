@@ -8,6 +8,7 @@ from surprise import accuracy
 from surprise.model_selection import cross_validate, GridSearchCV
 import joblib
 import os
+import bentoml
 
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 INPUT_FOLDER = BASE_DIR / "data" / "processed"
@@ -48,6 +49,7 @@ def main():
     best_params = load_best_params()
     model_name = config.get("model_name")
     model_class = MODEL_MAPPING.get(model_name)
+    projectname = "mlops_movie_recommender"
     
     logger = logging.getLogger(__name__)
     logger.info(f'Training model {model_name}')
@@ -56,9 +58,11 @@ def main():
     output_folderpath = OUTPUT_FOLDER
     
     # Call the main data processing function with the provided file paths
-    train_model(input_filepath_train, 
+    model = train_model(input_filepath_train, 
                  output_folderpath,
                  model_class, best_params)
+    model_ref = bentoml.picklable_model.save_model(projectname+"_"+model_name, model)
+    print(f"Model saved as: {model_ref}")
 
 def train_model(input_filepath_train, 
                  output_folderpath,
@@ -79,8 +83,7 @@ def train_model(input_filepath_train,
     #--Saving the best params in .pkl file
     output_filepath = os.path.join(output_folderpath, 'trained_model.pkl')
     joblib.dump(trained_model, output_filepath)
-
-            
+    return trained_model
        
 def check_existing_folder(folder_path):
     '''Check if a folder already exists.'''
