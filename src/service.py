@@ -39,7 +39,7 @@ USERS = {
     "user456": "password456"
 }
 
-# Mapping for model names to classes
+# Mapping for model names to . classes
 MODEL_MAPPING = {
     "svd": SVD,
     "svdpp": SVDpp,
@@ -190,7 +190,7 @@ async def classify(input_data: InputModel, ctx: bentoml.Context) -> dict:
         "user": user
     }
     
-    
+     
     
 # Function to create a JWT token
 def create_jwt_token(user_id: str):

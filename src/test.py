@@ -2,7 +2,7 @@ import requests
 
 # The URL of the login and prediction endpoints
 login_url = "http://127.0.0.1:3000/login"
-predict_url = "http://127.0.0.1:3000/v1/models/admission/predict"
+predict_url = "http://127.0.0.1:3000/v1/models/movierecommender/predict"
 
 
 # Données de connexion
