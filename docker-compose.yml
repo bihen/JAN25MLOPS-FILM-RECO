@@ -2,7 +2,9 @@ version: "3.10"
 
 services:
   data_split:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
     container_name: data_split
     command: ["python", "src/data/data_split.py"]
     volumes:
@@ -12,7 +14,9 @@ services:
     depends_on: []
 
   grid_search:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
     container_name: grid_search
     command: ["python", "src/models/model_grid_search.py"]
     volumes:
@@ -24,10 +28,15 @@ services:
         condition: service_completed_successfully
 
   model_train:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
     container_name: model_train
+    environment:
+      - BENTOML_HOME=/bentoml
     command: ["python", "src/models/model_train.py"]
     volumes:
+      - ./bentoml:/bentoml
       - ./data:/app/data
       - ./models:/app/models
       - ./metrics:/app/metrics
@@ -36,7 +45,9 @@ services:
         condition: service_completed_successfully 
 
   model_evaluate:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
     container_name: model_evaluate
     env_file:
       - .env
@@ -50,3 +61,22 @@ services:
     depends_on:
       model_train:
         condition: service_completed_successfully 
+
+  bentoml:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: bentoml
+    ports:
+      - "3000:3000" 
+    environment:
+      - BENTOML_HOME=/bentoml
+    command: ["bentoml", "serve", "src/service.py"]
+    volumes:
+      - ./bentoml:/bentoml
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./metrics:/app/metrics
+    depends_on:
+      model_evaluate:
+        condition: service_completed_successfully
