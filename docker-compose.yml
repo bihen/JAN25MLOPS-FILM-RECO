@@ -62,6 +62,20 @@ services:
       model_train:
         condition: service_completed_successfully 
 
+  create_predictions:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: create_predictions
+    command: ["python", "src/data/create_prediction_data.py"]
+    volumes:
+      - ./data:/app/data
+      - ./models:/app/models
+      - ./metrics:/app/metrics
+    depends_on:
+      model_evaluate:
+        condition: service_completed_successfully 
+
   bentoml:
     build: 
       context: .
