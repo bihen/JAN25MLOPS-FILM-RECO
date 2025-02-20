@@ -75,11 +75,22 @@ jobs:
       run: |
         docker-compose build
 
+
     - name: Start docker-compose
       env:
         DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_USER_TOKEN }}
       run: |
-        docker-compose up 
+        docker-compose up -d
+
+    - name: Wait for API to be ready
+      run: |
+        echo "Waiting for API to be ready..."
+        sleep 60 
+        curl --retry 10 --retry-delay 20 --retry-connrefused -s http://localhost:3000/healthz || exit 1
+    
+    - name: Run tests
+      run: |
+        pytest src/test_service.py -v
 
     - name: Clean up docker-compose
       run: |

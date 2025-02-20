@@ -6,8 +6,8 @@ import datetime
 
 # The URL of the login and prediction endpoints
 LOGIN_URL = "http://127.0.0.1:3000/login"
-PREDICT_URL = "http://127.0.0.1:3000/v1/models/admission/predict"
-
+PREDICT_URL = "http://127.0.0.1:3000/v1/models/movierecommender/predict"
+HEALTHCHECK_URL = "http://127.0.0.1:3000/healthz"
 # Données de connexion
 VALID_CREDENTIALS = {
     "username": "user123",
@@ -24,7 +24,7 @@ VALID_DATA = {
     "UserID" : 1
 }
 INVALID_DATA = {
-    "UserID" : "test"
+    "UserID" : "String"
 }
 
 @pytest.fixture
@@ -34,7 +34,11 @@ def get_valid_token():
     assert response.status_code == 200
     return response.json().get("token")
 
-
+def test_healthcheck():
+    """Verify that the health check works"""
+    response = requests.get(HEALTHCHECK_URL)
+    assert response.status_code == 200
+ 
 def test_missing_jwt():
     """Verify that authentication fails if the JWT token is missing"""
     response = requests.get(PREDICT_URL)
@@ -73,7 +77,7 @@ def test_login_success():
     assert response.status_code == 200
     assert "token" in response.json()
 
-
+    
 def test_login_failure():
     """Verify that the API returns a 401 error for incorrect user credentials"""
     response = requests.post(LOGIN_URL, json=INVALID_CREDENTIALS)
@@ -101,3 +105,4 @@ def test_prediction_invalid_input(get_valid_token):
     headers = {"Authorization": f"Bearer {get_valid_token}"}
     response = requests.post(PREDICT_URL, json=INVALID_DATA, headers=headers)
     assert response.status_code >= 400
+    

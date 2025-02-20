@@ -141,6 +141,21 @@ movie_service.add_asgi_middleware(JWTAuthMiddleware)
 #Load neccessary data
 movies_df, ratings = load_data()
 
+@movie_service.api(route="/healthz", input=JSON(), output=JSON())
+async def health_check(ctx: bentoml.Context) -> dict:
+    """
+    Health check endpoint to verify that the API is running and the model is loaded.
+    """
+    try:
+        # Ensure the model is loaded
+        if movie_runner is None or movie_runner.model is None:
+            return {"status": "error", "message": "Model is not loaded"}, 500
+        
+        return {"status": "ok", "message": "Service is running"}
+    
+    except Exception as e:
+        return {"status": "error", "message": str(e)}, 500
+
 # Create an API endpoint for the service (login)
 @movie_service.api(input=JSON(pydantic_model=LoginModel), output=JSON())
 def login(credentials: LoginModel, ctx: bentoml.Context) -> dict:
