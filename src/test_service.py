@@ -3,12 +3,24 @@ import pytest
 import requests
 import jwt
 import datetime
+import os
+from pathlib import Path
+import json
 
 # The URL of the login and prediction endpoints
 LOGIN_URL = "http://127.0.0.1:3000/login"
 PREDICT_URL = "http://127.0.0.1:3000/v1/models/movierecommender/predict"
 HEALTHCHECK_URL = "http://127.0.0.1:3000/healthz"
 
+def load_json_config(json_file):
+    """
+    Load the json config
+    """
+    with open(os.path.join(CONFIG_FOLDER, json_file)) as f:
+        config = json.load(f)
+    return config
+BASE_DIR = Path(__file__).resolve().parent.parent
+CONFIG_FOLDER = BASE_DIR / "config"
 
 USERS_FILE = "users.json"
 USERS = load_json_config(USERS_FILE)
@@ -33,13 +45,7 @@ INVALID_DATA = {
     "UserID" : "String"
 }
 
-def load_json_config(json_file):
-    """
-    Load the json config
-    """
-    with open(os.path.join(CONFIG_FOLDER, json_file)) as f:
-        config = json.load(f)
-    return config
+
 
 @pytest.fixture
 def get_valid_token():

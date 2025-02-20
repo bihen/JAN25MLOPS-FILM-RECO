@@ -29,14 +29,7 @@ OUTPUT_FOLDER = BASE_DIR / "models"
 CONFIG_FOLDER = BASE_DIR / "config"
 MODEL_FOLDER = BASE_DIR / "models"
 
-SECRETS_FILE = "secrets.json"
-USERS_FILE = "users.json"
 
-SECRETS = load_json_config(SECRETS_FILE)
-USERS = load_json_config(USERS_FILE)
-
-JWT_SECRET_KEY = SECRETS["JWT_SECRET_KEY"]
-JWT_ALGORITHM = SECRETS["JWT_ALGORITHM"]
 
 # Mapping for model names to . classes
 MODEL_MAPPING = {
@@ -62,6 +55,15 @@ def load_json_config(json_file):
     with open(os.path.join(CONFIG_FOLDER, json_file)) as f:
         config = json.load(f)
     return config
+
+SECRETS_FILE = "secrets.json"
+USERS_FILE = "users.json"
+
+SECRETS = load_json_config(SECRETS_FILE)
+USERS = load_json_config(USERS_FILE)
+
+JWT_SECRET_KEY = SECRETS["JWT_SECRET_KEY"]
+JWT_ALGORITHM = SECRETS["JWT_ALGORITHM"]
 
 # Custom Runner to load Surprise models
 class SurpriseRunner(Runnable):
