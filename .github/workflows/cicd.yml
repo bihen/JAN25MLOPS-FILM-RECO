@@ -58,13 +58,14 @@ jobs:
     - name: Set up API token & secrets
       env:
         DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_USER_TOKEN }}
-        USER_JSON: ${{ secrets.USERS }}
-        JWT_JSON: ${{ secrets.JWT_SECRETS }}
+        USERS_JSON: ${{ secrets.USERS }}
+        JWT_SECRETS_JSON: ${{ secrets.JWT_SECRETS }}
       run: |
         echo "DAGSHUB_USER_TOKEN=${DAGSHUB_USER_TOKEN}" > .env
-        echo "$USER_JSON" > config/users.json
-        echo "$JWT_JSON" > config/secrets.json
-        echo "API token is set"
+        echo "$USERS_JSON" | base64 --decode > config/users.json
+        echo "$JWT_SECRETS_JSON" | base64 --decode > config/secrets.json
+
+        echo "Secrets have been set up successfully."
 
     - name: Set up Docker
       run: |
