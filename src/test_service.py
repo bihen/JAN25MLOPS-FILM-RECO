@@ -8,15 +8,21 @@ import datetime
 LOGIN_URL = "http://127.0.0.1:3000/login"
 PREDICT_URL = "http://127.0.0.1:3000/v1/models/movierecommender/predict"
 HEALTHCHECK_URL = "http://127.0.0.1:3000/healthz"
-# Données de connexion
+
+
+USERS_FILE = "users.json"
+USERS = load_json_config(USERS_FILE)
+
+test_user = list(USERS.items())[0]
+
 VALID_CREDENTIALS = {
-    "username": "user123",
-    "password": "password123"
+    "username": test_user[0],  # username
+    "password": test_user[1]   # password
 }
 
 INVALID_CREDENTIALS = {
     "username": "user123",
-    "password": "password2345"
+    "password": "bad_password"
 }
 
 # Sample input data for prediction
@@ -26,6 +32,14 @@ VALID_DATA = {
 INVALID_DATA = {
     "UserID" : "String"
 }
+
+def load_json_config(json_file):
+    """
+    Load the json config
+    """
+    with open(os.path.join(CONFIG_FOLDER, json_file)) as f:
+        config = json.load(f)
+    return config
 
 @pytest.fixture
 def get_valid_token():
