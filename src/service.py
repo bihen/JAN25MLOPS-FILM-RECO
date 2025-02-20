@@ -29,15 +29,14 @@ OUTPUT_FOLDER = BASE_DIR / "models"
 CONFIG_FOLDER = BASE_DIR / "config"
 MODEL_FOLDER = BASE_DIR / "models"
 
-# Secret key and algorithm for JWT authentication
-JWT_SECRET_KEY = "your_jwt_secret_key_here"
-JWT_ALGORITHM = "HS256"
+SECRETS_FILE = CONFIG_FOLDER / "secrets.json"
+USERS_FILE = CONFIG_FOLDER / "users.json"
 
-# User credentials for authentication
-USERS = {
-    "user123": "password123",
-    "user456": "password456"
-}
+SECRETS = load_json_config(SECRETS_FILE)
+USERS = load_json_config(USERS_FILE)
+
+JWT_SECRET_KEY = SECRETS["JWT_SECRET_KEY"]
+JWT_ALGORITHM = SECRETS["JWT_ALGORITHM"]
 
 # Mapping for model names to . classes
 MODEL_MAPPING = {

@@ -51,16 +51,19 @@ jobs:
         dvc remote modify gdrive --local gdrive_client_secret $GDRIVE_CLIENT_SECRET 
         dvc remote modify gdrive gdrive_use_service_account true
         echo "$GDRIVE_CREDENTIALS_DATA" > gdrive-credentials.json
-        echo "$GDRIVE_CREDENTIALS_DATA" | head -n 5  
         cat gdrive-credentials.json | jq . > /dev/null || echo "Invalid JSON!"
         dvc remote modify gdrive --local gdrive_service_account_json_file_path gdrive-credentials.json
         dvc pull
 
-    - name: Set up API token
+    - name: Set up API token & secrets
       env:
         DAGSHUB_USER_TOKEN: ${{ secrets.DAGSHUB_USER_TOKEN }}
+        USER_JSON: ${{ secrets.USERS }}
+        JWT_JSON: ${{ secrets.JWT_SECRETS }}
       run: |
         echo "DAGSHUB_USER_TOKEN=${DAGSHUB_USER_TOKEN}" > .env
+        echo "$USER_JSON" > config/users.json
+        echo "$JWT_JSON" > config/secrets.json
         echo "API token is set"
 
     - name: Set up Docker
