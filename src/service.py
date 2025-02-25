@@ -41,8 +41,8 @@ API_ACCESS_COUNTER = Counter(
     "api_access_count", "Number of times the API has been accessed"
 )
 TOTAL_RATINGS_COUNTER = Counter(
-    'total_ratings_sum',  # Metric name
-    'Cumulative sum of predicted ratings across all API accesses',  # Description
+    'total_ratings_sum', 
+    'Cumulative sum of predicted ratings across all API accesses',  
 )
 RESPONSE_TIME_HISTOGRAM = Histogram(
     "api_response_duration_seconds",
@@ -51,7 +51,6 @@ RESPONSE_TIME_HISTOGRAM = Histogram(
 )
 AVERAGE_RATING_GAUGE = Gauge("average_rating", "Average rating returned by the API")
 
-TOTAL_RATINGS = 
 # User credentials for authentication
 USERS = {
     "user123": "password123",
@@ -224,7 +223,7 @@ async def classify(input_data: InputModel, ctx: bentoml.Context) -> dict:
     
     average_rating = recommendations["predicted_score"].head(10).mean()
     TOTAL_RATINGS_COUNTER.inc(average_rating)
-    overall_average = total_ratings_counter._value.get() / API_ACCESS_COUNTER._value.get()
+    overall_average = TOTAL_RATINGS_COUNTER._value.get() / API_ACCESS_COUNTER._value.get()
 
     AVERAGE_RATING_GAUGE.set(overall_average)
     
@@ -236,11 +235,7 @@ async def classify(input_data: InputModel, ctx: bentoml.Context) -> dict:
         "user": user
     }
     
-# Expose metrics endpoint for Prometheus to scrape
-@movie_service.api(route='/metrics')
-async def metrics(ctx: bentoml.Context) -> StreamingResponse:
-    # Return the metrics in Prometheus format
-    return StreamingResponse(generate_latest(REGISTRY), media_type="text/plain")    
+    
     
 # Function to create a JWT token
 def create_jwt_token(user_id: str):

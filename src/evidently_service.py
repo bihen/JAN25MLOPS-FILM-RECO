@@ -3,17 +3,21 @@ import pandas as pd
 import json
 import os
 import datetime
-from evidently.report import Report
-from evidently.metrics import DataDriftPreset, TargetDriftPreset
+from pathlib import Path
+
+from evidently.metrics import RegressionQualityMetric, RegressionErrorPlot, RegressionErrorDistribution
+from evidently.metric_preset import DataDriftPreset, RegressionPreset, TargetDriftPreset
 from evidently.pipeline.column_mapping import ColumnMapping
+from evidently.report import Report
 from evidently.ui.workspace import Workspace
+
 import random
 import joblib
 
 # Define the paths
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-INPUT_FOLDER = os.path.join(BASE_DIR, "data", "processed")
-OUTPUT_FOLDER = os.path.join(BASE_DIR, "data", "processed")
+BASE_DIR = Path(__file__).resolve().parent.parent
+RAW_FOLDER = os.path.join(BASE_DIR, "data", "raw")
+PROCESSED_FOLDER = os.path.join(BASE_DIR, "data", "processed")
 
 # Define the project and workspace
 WORKSPACE_NAME = "movie_recommender_workspace"
@@ -29,8 +33,8 @@ def load_data():
     """
     Load ratings and predictions data
     """
-    ratings = pd.read_csv(os.path.join(INPUT_FOLDER, "ratings.csv"))
-    predictions = pd.read_csv(os.path.join(OUTPUT_FOLDER, "predictions.csv"))
+    ratings = pd.read_csv(os.path.join(RAW_FOLDER, "ratings.csv"))
+    predictions = pd.read_csv(os.path.join(PROCESSED_FOLDER, "predictions.csv"))
     return ratings, predictions
 
 def create_report(workspace, reference_data, current_data, column_mapping, report_name):
@@ -90,7 +94,7 @@ def check_for_drift(workspace):
     current_data = merged_data.tail(len(merged_data) // 2)  # The second half as current data
 
     # Create the drift report
-    drift_report = create_report(reference_data, current_data, column_mapping, "Data and Target Drift Report")
+    drift_report = create_report(workspace, reference_data, current_data, column_mapping, "Data and Target Drift Report")
     return drift_report
 
 if __name__ == "__main__":

@@ -122,10 +122,10 @@ services:
   evidently:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.evidently
     container_name: evidently
     ports:
-      - "5000:5000"
+      - "8000:8000"
     command: ["bash", "-c", "python src/evidently_service.py && evidently ui --workspace ./movie_recommender_workspace/"]
     volumes:
       - ./data:/app/data
