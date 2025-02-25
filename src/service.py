@@ -18,6 +18,9 @@ import warnings
 import warnings
 import logging
 import pickle
+from prometheus_client import Counter, Histogram, Gauge, generate_latest, REGISTRY
+import time
+from starlette.responses import StreamingResponse
 
 warnings.simplefilter("ignore", category=DeprecationWarning)
 logging.getLogger("bentoml").setLevel(logging.ERROR)
@@ -33,6 +36,22 @@ MODEL_FOLDER = BASE_DIR / "models"
 JWT_SECRET_KEY = "your_jwt_secret_key_here"
 JWT_ALGORITHM = "HS256"
 
+# Create Prometheus metrics
+API_ACCESS_COUNTER = Counter(
+    "api_access_count", "Number of times the API has been accessed"
+)
+TOTAL_RATINGS_COUNTER = Counter(
+    'total_ratings_sum',  # Metric name
+    'Cumulative sum of predicted ratings across all API accesses',  # Description
+)
+RESPONSE_TIME_HISTOGRAM = Histogram(
+    "api_response_duration_seconds",
+    "API response duration in seconds",
+    buckets=[1, 5, 10, 20, 30, 60]
+)
+AVERAGE_RATING_GAUGE = Gauge("average_rating", "Average rating returned by the API")
+
+TOTAL_RATINGS = 
 # User credentials for authentication
 USERS = {
     "user123": "password123",
@@ -177,6 +196,10 @@ def login(credentials: LoginModel, ctx: bentoml.Context) -> dict:
     route='v1/models/movierecommender/predict'
 )
 async def classify(input_data: InputModel, ctx: bentoml.Context) -> dict:
+    start_time = time.time()  # Start measuring time
+    # Track number of API accesses
+    API_ACCESS_COUNTER.inc()
+    
     print(f"Received input: {input_data}")
     request = ctx.request
     user_id = input_data.UserID
@@ -198,14 +221,26 @@ async def classify(input_data: InputModel, ctx: bentoml.Context) -> dict:
     
     # Sort and get top 10 recommendations
     recommendations = movies_not_watched.sort_values(by="predicted_score", ascending=False).head(10)
-    print(recommendations.head())
+    
+    average_rating = recommendations["predicted_score"].head(10).mean()
+    TOTAL_RATINGS_COUNTER.inc(average_rating)
+    overall_average = total_ratings_counter._value.get() / API_ACCESS_COUNTER._value.get()
+
+    AVERAGE_RATING_GAUGE.set(overall_average)
+    
+    response_duration = time.time() - start_time
+    RESPONSE_TIME_HISTOGRAM.observe(response_duration)
     return {
         "prediction": recommendations["title"],
         "userId": user_id,
         "user": user
     }
     
-     
+# Expose metrics endpoint for Prometheus to scrape
+@movie_service.api(route='/metrics')
+async def metrics(ctx: bentoml.Context) -> StreamingResponse:
+    # Return the metrics in Prometheus format
+    return StreamingResponse(generate_latest(REGISTRY), media_type="text/plain")    
     
 # Function to create a JWT token
 def create_jwt_token(user_id: str):
