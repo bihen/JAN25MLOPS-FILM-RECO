@@ -32,10 +32,6 @@ OUTPUT_FOLDER = BASE_DIR / "models"
 CONFIG_FOLDER = BASE_DIR / "config"
 MODEL_FOLDER = BASE_DIR / "models"
 
-# Secret key and algorithm for JWT authentication
-JWT_SECRET_KEY = "your_jwt_secret_key_here"
-JWT_ALGORITHM = "HS256"
-
 # Create Prometheus metrics
 API_ACCESS_COUNTER = Counter(
     "api_access_count", "Number of times the API has been accessed"
@@ -51,11 +47,6 @@ RESPONSE_TIME_HISTOGRAM = Histogram(
 )
 AVERAGE_RATING_GAUGE = Gauge("average_rating", "Average rating returned by the API")
 
-# User credentials for authentication
-USERS = {
-    "user123": "password123",
-    "user456": "password456"
-}
 
 # Mapping for model names to . classes
 MODEL_MAPPING = {
@@ -73,6 +64,23 @@ def load_config():
     with open(os.path.join(CONFIG_FOLDER, "config.json")) as f:
         config = json.load(f)
     return config
+
+def load_json_config(json_file):
+    """
+    Load the json config
+    """
+    with open(os.path.join(CONFIG_FOLDER, json_file)) as f:
+        config = json.load(f)
+    return config
+
+SECRETS_FILE = "secrets.json"
+USERS_FILE = "users.json"
+
+SECRETS = load_json_config(SECRETS_FILE)
+USERS = load_json_config(USERS_FILE)
+
+JWT_SECRET_KEY = SECRETS["JWT_SECRET_KEY"]
+JWT_ALGORITHM = SECRETS["JWT_ALGORITHM"]
 
 # Custom Runner to load Surprise models
 class SurpriseRunner(Runnable):

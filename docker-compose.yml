@@ -118,7 +118,7 @@ services:
       - ./grafana:/var/lib/grafana
     depends_on:
       - prometheus
-
+      
   evidently:
     build:
       context: .
@@ -133,3 +133,4 @@ services:
     depends_on:
       create_predictions:
         condition: service_completed_successfully
+
