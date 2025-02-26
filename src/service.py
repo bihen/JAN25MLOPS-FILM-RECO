@@ -21,6 +21,8 @@ import pickle
 from prometheus_client import Counter, Histogram, Gauge, generate_latest, REGISTRY
 import time
 from starlette.responses import StreamingResponse
+import asyncio
+from concurrent.futures import ProcessPoolExecutor
 
 warnings.simplefilter("ignore", category=DeprecationWarning)
 logging.getLogger("bentoml").setLevel(logging.ERROR)
@@ -104,7 +106,10 @@ class SurpriseRunner(Runnable):
         """Runs prediction using Surprise's `predict` method."""
         prediction = self.model.predict(user_id, movie_id)
         return prediction.est  
-
+    # Add a 'predict' method for convenience
+    def predict(self, user_id: int, movie_id: int) -> float:
+        return self.run(user_id, movie_id)
+    
 class JWTAuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         if request.url.path == "/v1/models/movierecommender/predict":
@@ -215,21 +220,29 @@ async def classify(input_data: InputModel, ctx: bentoml.Context) -> dict:
     
     user = request.state.user if hasattr(request.state, 'user') else None
     
-    user_data = ratings[ratings['userId'] == user_id]  # Filter ratings for the given User ID
+    # Filter ratings for the given User ID
+    user_data = ratings[ratings['userId'] == user_id]  
     top_movies = user_data.sort_values(by="rating", ascending=False)
     top_movies = top_movies.merge(movies_df, on = "movieId")
     
+    # Get the list of movies not yet watched by the user
     movies_not_watched = movies_df[~movies_df["movieId"].isin(user_data.movieId.values)]
     movies_not_watched["predicted_score"] = 0.0
 
-    for index, movie in movies_not_watched.iterrows():
-        predicted_rating = await movie_runner.async_run(int(user_id), int(movie["movieId"]))
-        movies_not_watched.at[index, "predicted_score"] = predicted_rating
+    # Gather all movie ids and make predictions in batches
+    movie_ids_to_predict = movies_not_watched["movieId"].values.tolist()
+    
+    # Perform batch prediction (make async requests to run predictions for all movie IDs)
+    predictions = await asyncio.gather(*[movie_runner.async_run(int(user_id), int(movie_id)) for movie_id in movie_ids_to_predict])
+
+    # Assign the predicted ratings to the DataFrame
+    movies_not_watched["predicted_score"] = predictions
     
     # Sort and get top 10 recommendations
     recommendations = movies_not_watched.sort_values(by="predicted_score", ascending=False).head(10)
     
-    average_rating = recommendations["predicted_score"].head(10).mean()
+    # Calculate average rating
+    average_rating = recommendations["predicted_score"].mean()
     TOTAL_RATINGS_COUNTER.inc(average_rating)
     overall_average = TOTAL_RATINGS_COUNTER._value.get() / API_ACCESS_COUNTER._value.get()
 
@@ -237,12 +250,12 @@ async def classify(input_data: InputModel, ctx: bentoml.Context) -> dict:
     
     response_duration = time.time() - start_time
     RESPONSE_TIME_HISTOGRAM.observe(response_duration)
+    
     return {
-        "prediction": recommendations["title"],
+        "prediction": recommendations["title"].tolist(),  # Returning list of movie titles
         "userId": user_id,
         "user": user
-    }
-    
+    }    
     
     
 # Function to create a JWT token

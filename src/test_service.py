@@ -111,7 +111,12 @@ def test_prediction_missing_jwt():
     response = requests.post(PREDICT_URL, json=VALID_DATA)
     assert response.status_code == 401
 
-
+def test_prediction_invalid_input(get_valid_token):
+    """Verify that the API returns an error for invalid input data"""
+    headers = {"Authorization": f"Bearer {get_valid_token}"}
+    response = requests.post(PREDICT_URL, json=INVALID_DATA, headers=headers)
+    assert response.status_code >= 400
+    
 def test_prediction_valid_input(get_valid_token):
     """Verify that the API returns a valid prediction for correct input data"""
     headers = {"Authorization": f"Bearer {get_valid_token}"}
@@ -120,9 +125,3 @@ def test_prediction_valid_input(get_valid_token):
     assert "prediction" in response.json()
 
 
-def test_prediction_invalid_input(get_valid_token):
-    """Verify that the API returns an error for invalid input data"""
-    headers = {"Authorization": f"Bearer {get_valid_token}"}
-    response = requests.post(PREDICT_URL, json=INVALID_DATA, headers=headers)
-    assert response.status_code >= 400
-    
