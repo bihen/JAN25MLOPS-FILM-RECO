@@ -1,4 +1,6 @@
 version: "3.10"
+networks:
+  monitoring:
 
 services:
   data_split:
@@ -98,6 +100,8 @@ services:
       resources:
         limits:
           cpus: '10.0' 
+    networks:
+      - monitoring
 
   prometheus:
     image: prom/prometheus
@@ -110,10 +114,13 @@ services:
       - "9090:9090"
     depends_on:
       - bentoml
+    networks:
+      - monitoring
 
   grafana:
     image: grafana/grafana
     container_name: grafana
+    user: "472:472"
     ports:
       - "3001:3000"
     environment:
@@ -122,6 +129,8 @@ services:
       - ./grafana:/var/lib/grafana
     depends_on:
       - prometheus
+    networks:
+      - monitoring  
       
   evidently:
     build:
@@ -130,7 +139,7 @@ services:
     container_name: evidently
     ports:
       - "8000:8000"
-    command: ["bash", "-c", "python src/evidently_service.py && evidently ui --workspace ./movie_recommender_workspace/"]
+    command: ["bash", "-c", "python src/evidently_service.py && evidently ui --workspace ./movie_recommender_workspace/ --host 0.0.0.0"]
     volumes:
       - ./data:/app/data
       - ./metrics:/app/metrics

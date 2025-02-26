@@ -18,7 +18,7 @@ import warnings
 import warnings
 import logging
 import pickle
-from prometheus_client import Counter, Histogram, Gauge, generate_latest, REGISTRY
+from prometheus_client import Counter, Histogram, Gauge, generate_latest
 import time
 from starlette.responses import StreamingResponse
 import asyncio
@@ -34,7 +34,8 @@ OUTPUT_FOLDER = BASE_DIR / "models"
 CONFIG_FOLDER = BASE_DIR / "config"
 MODEL_FOLDER = BASE_DIR / "models"
 
-# Create Prometheus metrics
+
+# Define metrics
 API_ACCESS_COUNTER = Counter(
     "api_access_count", "Number of times the API has been accessed"
 )
@@ -48,7 +49,6 @@ RESPONSE_TIME_HISTOGRAM = Histogram(
     buckets=[1, 5, 10, 20, 30, 60]
 )
 AVERAGE_RATING_GAUGE = Gauge("average_rating", "Average rating returned by the API")
-
 
 # Mapping for model names to . classes
 MODEL_MAPPING = {
@@ -250,7 +250,7 @@ async def classify(input_data: InputModel, ctx: bentoml.Context) -> dict:
     
     response_duration = time.time() - start_time
     RESPONSE_TIME_HISTOGRAM.observe(response_duration)
-    
+    print("Time to deliver:", response_duration)
     return {
         "prediction": recommendations["title"].tolist(),  # Returning list of movie titles
         "userId": user_id,
