@@ -7,9 +7,4 @@ scrape_configs:
     static_configs:
       - targets: ['bentoml:3000']
 
-  - job_name: 'movie_recommender'
-    metrics_path: '/metrics'
-    static_configs:
-      - targets: ['evidently:5000']  # Change 'evidently' to the name of the service running your API
-
 
