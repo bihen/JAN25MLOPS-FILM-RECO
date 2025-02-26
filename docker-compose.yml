@@ -94,7 +94,10 @@ services:
     depends_on:
       model_evaluate:
         condition: service_completed_successfully
-      cpus: '10.0'  
+    deploy:
+      resources:
+        limits:
+          cpus: '10.0' 
 
   prometheus:
     image: prom/prometheus
