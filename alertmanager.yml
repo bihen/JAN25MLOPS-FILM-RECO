@@ -1,0 +1,15 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: "email-notifications"
+
+receivers:
+  - name: "email-notifications"
+    email_configs:
+      - to: "biancavanhemert06@gmail.com"
+        from: "joshuavanhemert@gmail.com"
+        smarthost: "smtp.gmail.com:587"
+        auth_username: "joshuavanhemert@gmail.com"
+        auth_password: "agaocpjethfxztqo"
+        require_tls: true

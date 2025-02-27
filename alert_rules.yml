@@ -1,0 +1,20 @@
+groups:
+  - name: api_alerts
+    rules:
+      - alert: HighResponseTime
+        expr: rate(api_response_duration_seconds_bucket{le="60"}[5m]) / rate(api_response_duration_seconds_count[5m]) > 0.2
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High API response time detected"
+          description: "More than 20% of requests in the last 5 minutes took over 30 seconds."
+
+      - alert: CriticalResponseTime
+        expr: rate(api_response_duration_seconds_bucket{le="+Inf"}[5m]) / rate(api_response_duration_seconds_count[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Critical API response time detected"
+          description: "More than 10% of requests in the last 5 minutes took over 60 seconds."

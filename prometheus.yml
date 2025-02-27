@@ -10,4 +10,10 @@ scrape_configs:
     metrics_path: '/metrics'
     static_configs:
       - targets: ['cadvisor:8080']
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]  # Make sure it matches your container name
 
+rule_files:
+  - "alert_rules.yml"
