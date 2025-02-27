@@ -1,60 +1,152 @@
-Movie Recommender System based on 20m Movielens Dataset
+Movie Recommender System based on Movielens Dataset
 ==============================
 
 This project is for the DataScientest course.
-We are building a Movie Recommendation System based on the 20m movielens dataset.(https://grouplens.org/datasets/movielens/20m/)
+We are building a Movie Recommendation System based on a subset of the 32m movielens dataset.([https://grouplens.org/datasets/movielens/32m/](https://grouplens.org/datasets/movielens/32m/))
 
-For this we try different approaches to a recommendation system. These are yet to be clearly determined.
+For this particular project, which is more focused around a functioning API and deployment of a model, we are using a basic Surprise ([https://surpriselib.com/](https://surpriselib.com/)) model.
+The type of model can be configured using the config.json in /config. THe available models are:
 
-Data Preperation
+- SVD
+- SVDpp
+- SlopeOne
+- KNNWithMeans
+- KNNBaseline
+
+The project is preconfigured for SVD, for the fastest performance.
+
+
+Data Preparation
 ==============================
-As part of data preperation, a new .csv file is created, movie_genome_df.csv. This file is required for models using genome data for prediction. It can be manually created using the Keras-HybridFilteringWithGenomes.ipynb notebook.
-Other than that all data is prepared locally in each notebook.
+For the raw data for our model, any MovieLens .csv ratings file can be used (or any other .csv that contains explicit ratings, userIDs and movieIDs).
+The base model (constituting our reference data to compare to for data drift/performance) is based on the ml-latest-small MovieLens set.
 
-Models
-==============================
-We have trained different models on the 20M Dataset. 
-These include classic machine learning models, specificially using the Surprise python library (https://surpriselib.com/), but also Deep Learning Models using Keras.
-
-We will try to include all trained models in the github release, however due to filesize (Models range from 500MB to 8GB of filesize), there may be limitations.
+The data is loaded from data/raw into Surprise and converted to the proprietary data format for Surprise, then saved in data/preprocessed as pickled files.
+Data is tracked via DVC. Current DVC setup is for googledrive.
 
 Folder Structure:
 ------------
 
     ├── LICENSE
-    ├── README.md          <- The top-level README for developers using this project.
-    ├── data               <- Should be in your computer but not on Github (only in .gitignore)
-    │   ├── processed      <- The final, canonical data sets for modeling.
-    │   └── raw            <- The original, immutable data dump.
+    ├── README.md          <- This readme
+    ├── config
+    │   ├── config.json          <- config file used to select model
+    │   ├── param_grid.json      <- config file to set the parameter grid for different models
+    │   ├── users.json          <- sample json for a very basic user database - CHANGE IN DEPLOYMENT
+    │   └── secrets.json      <- sample json for setting JWT secret key - CHANGE IN DEPLOYMENT
+    ├── data               <- tracked with DVC
+    │   ├── processed      <- Processed Surprise Datasets
+    │   └── raw            <- Contains at least ratings.csv and movies.csv from MovieLens
     │
-    ├── models             <- Trained and serialized models, model predictions, or model summaries
+    ├── metrics            <- Location to save metric data 
+    |
+    ├── models             <- Contains the trained and serialized model, as well as the best_params.pkl used to train the model 
     │
-    ├── notebooks          <- Jupyter notebooks. Naming convention is a number (for ordering),
-    │                         the creator's name, and a short `-` delimited description, e.g.
-    │                         `1.0-alban-data-exploration`.
+    ├── notebooks          <- Contains Jupyter Notebooks from previous project for reference
     │
-    ├── references         <- Data dictionaries, manuals, links, and all other explanatory materials.
+    ├── requirements.txt   <- The requirements file for reproducing the environment
     │
-    ├── reports            <- The reports that you'll make during this project as PDF
-    │   └── figures        <- Generated graphics and figures to be used in reporting
-    │
-    ├── requirements.txt   <- The requirements file for reproducing the analysis environment, e.g.
-    │                         generated with `pip freeze > requirements.txt`
-    │
-    ├── src                <- Source code for use in this project.
+    ├── src                <- Source code for use in this project. Top folder contains API and testing files
     │   ├── __init__.py    <- Makes src a Python module
     │   │
-    │   ├── features       <- Scripts to turn raw data into features for modeling
-    │   │   └── build_features.py
+    │   ├── data       <- Scripts to turn raw data into features for modeling
+    │   │   └── data_split.py <- turns data into correct format for surprise and splits into test- and trainset
+    │   │   └── create_prediction_data.py <- creates a prediction sample for 15 users (10 fixed, 5 random) to compare for model drift
     │   │
     │   ├── models         <- Scripts to train models and then use trained models to make
     │   │   │                 predictions
-    │   │   ├── predict_model.py
-    │   │   └── train_model.py
+    │   │   ├── model_grid_search.py <- script to perform a grid search to find the best parameters for currently selected model
+    │   │   ├── model_evaluate.py <- script to create evaluaion metrics to be saved in /metrics
+    │   │   └── train_model.py <- Training the actual model using best_params created earlier
     │   │
-    │   ├── visualization  <- Scripts to create exploratory and results oriented visualizations
-    │   │   └── visualize.py
+    │   ├── evidently_service.py  <- creates evidently data and model drift reports
+    │   │   
+    │   ├── service.py  <- BentoML API service, started with bentoml serve service.py
+    |   |
+    │   ├── test_service.py  <- pytest file to test service.py
+
+Architecture
+==============================
+![JAN25MLOPS-FILM-RECO Pipeline](https://github.com/user-attachments/assets/ee64eac8-872b-48e5-9f39-03f8dee8618e)
+                            Figure 1. Pipeline for the project architecture
+
+
+DagsHub Integrations
+==============================
+This project has a corresponding DagsHub repository: [https://dagshub.com/bihen/JAN25MLOPS-FILM-RECO](https://dagshub.com/bihen/JAN25MLOPS-FILM-RECO)
+
+MLFlow
+==============================
+This project has experiment tracking with MLFlow, hosted on DagsHub:  [https://dagshub.com/bihen/JAN25MLOPS-FILM-RECO/experiments](https://dagshub.com/bihen/JAN25MLOPS-FILM-RECO/experiments)
+
+Deployment
+==============================
+Requirements outside python:
+* Docker
+* Docker-compose
+* DVC
+
+1. Setup DVC
+
+Configure .dvc/config.local with the necessary secret data for gdrive (including the secret json file), or setup your own DVC (editing .dvc/config necessary)
+
+2. Pull data from DVC
+
+Use ```dvc pull``` to pull the current data from DVC
+
+3. Setup other Secrets
+
+Setup a .env file to configure DagsHub. 
+The .env file should contain: DAGSHUB_USER_TOKEN=[YOUR TOKEN HERE].
+DagsHub user tokens can be found in settings -> Tokens.
+Setup config/secrets.json and config/users.json to a secret and userbase respectively.
+
+4. Build containers with Docker-Compose
+
+Use ```docker-compose build``` to build all necessary containers
+
+5. Start docker containers
+
+Use ```docker-compose up -d``` to start all containers in detached state. This might take a while, as the model will need to do a grid search and then be trained.
+
+Services
+==============================
+After following these steps the following services will be available:
+- Port 3000: BentoML API
+  * ENDPOINT /healthz: checks if API is running and model is loaded
+  * ENDPOINT /login: logs in user based on config/users.json and returns a valid Bearer token
+  * ENDPOINT /v1/models/movierecommender/predict: route for actual API prediction. Requires a valid bearer token in the header and a JSON just containing the ID of the user you want to predict. E.g.: { "userID" : 1 }
+- Port 3001: Grafana
+  * Contains dashboards vizualizing data from Prometheus
+- Port 8000: Evidently UI
+  * Contains Evidently reports on data drift and model drift
+- Port 9090: Prometheus
+  * Contains different metrics collected on the API
+
+Testing
+==============================
+6. Run API tests
+
+Use ```pytest src/test_service.py``` to test functionality for the API
+
+Shut down and clean up
+==============================
+7. Shut down the API and clean up docker-compose
+
+Use ```docker-compose down``` to stop all running containers and clean up the process
+
+Development Team
+==============================
+
+Felix Oey 
+https://github.com/lyxoey
+
+Hassan Haddouchin 
+https://github.com/hhadd
+
+Bianca Edelweiss van Hemert
+https://github.com/bihen
 
 --------
 
-<p><small>Project based on the <a target="_blank" href="https://drivendata.github.io/cookiecutter-data-science/">cookiecutter data science project template</a>. #cookiecutterdatascience</small></p>
+
