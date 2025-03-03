@@ -13,7 +13,7 @@ scrape_configs:
 alerting:
   alertmanagers:
     - static_configs:
-        - targets: ["alertmanager:9093"]  # Make sure it matches your container name
+        - targets: ["alertmanager:9093"]  
 
 rule_files:
   - "alert_rules.yml"

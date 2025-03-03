@@ -1,20 +1,20 @@
 groups:
   - name: api_alerts
     rules:
-      - alert: HighResponseTime
-        expr: rate(api_response_duration_seconds_bucket{le="60"}[5m]) / rate(api_response_duration_seconds_count[5m]) > 0.2
-        for: 2m
+      - alert: HighApiAccessCount
+        expr: api_access_count_total > 15
+        for: 1m
         labels:
           severity: warning
         annotations:
-          summary: "High API response time detected"
-          description: "More than 20% of requests in the last 5 minutes took over 30 seconds."
+          summary: "High API access count"
+          description: "API access count exceeded 15 requests in the last 2 minutes."
 
-      - alert: CriticalResponseTime
-        expr: rate(api_response_duration_seconds_bucket{le="+Inf"}[5m]) / rate(api_response_duration_seconds_count[5m]) > 0.1
-        for: 2m
+      - alert: HighApiRequestDuration
+        expr: bentoml_api_server_request_duration_seconds_sum / bentoml_api_server_request_duration_seconds_count > 45
+        for: 10m
         labels:
           severity: critical
         annotations:
-          summary: "Critical API response time detected"
-          description: "More than 10% of requests in the last 5 minutes took over 60 seconds."
+          summary: "High API request duration detected"
+          description: "Average API request duration exceeded 45 seconds in the last 10 minutes."

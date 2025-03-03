@@ -9,3 +9,4 @@
 /grafana
 /config/secrets.json
 /config/users.json
+/curl_commands.txt

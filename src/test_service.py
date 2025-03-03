@@ -6,6 +6,10 @@ import datetime
 import os
 from pathlib import Path
 import json
+import concurrent.futures
+import logging
+
+logger = logging.getLogger(__name__)
 
 # The URL of the login and prediction endpoints
 LOGIN_URL = "http://127.0.0.1:3000/login"
@@ -123,5 +127,43 @@ def test_prediction_valid_input(get_valid_token):
     response = requests.post(PREDICT_URL, json=VALID_DATA, headers=headers)
     assert response.status_code == 200
     assert "prediction" in response.json()
+    
+def test_parallel_predictions_2(get_valid_token):
+    """Test multiple API inputs in parallel"""
+    headers = {"Authorization": f"Bearer {get_valid_token}"}
 
+    test_cases = [
+        ({"UserID": 1}, 200),  
+        ({"UserID": 2}, 200),  
+    ]
 
+    def send_request(input_data, expected_status):
+        response = requests.post(PREDICT_URL, json=input_data, headers=headers)
+        assert response.status_code == expected_status
+        if expected_status == 200:
+            assert "prediction" in response.json()
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = [executor.submit(send_request, data, status) for data, status in test_cases]
+        concurrent.futures.wait(futures)  # Ensure all finish before proceeding
+        
+def test_parallel_predictions_4(get_valid_token):
+    """Test multiple API inputs in parallel"""
+    headers = {"Authorization": f"Bearer {get_valid_token}"}
+
+    test_cases = [
+        ({"UserID": 1}, 200),  
+        ({"UserID": 2}, 200),  
+        ({"UserID": 5}, 200),  
+        ({"UserID": 6}, 200),  
+    ]
+
+    def send_request(input_data, expected_status):
+        response = requests.post(PREDICT_URL, json=input_data, headers=headers)
+        assert response.status_code == expected_status
+        if expected_status == 200:
+            assert "prediction" in response.json()
+
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = [executor.submit(send_request, data, status) for data, status in test_cases]
+        concurrent.futures.wait(futures)  # Ensure all finish before proceeding

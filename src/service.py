@@ -46,7 +46,7 @@ TOTAL_RATINGS_COUNTER = Counter(
 RESPONSE_TIME_HISTOGRAM = Histogram(
     "api_response_duration_seconds",
     "API response duration in seconds",
-    buckets=[1, 5, 10, 20, 30, 60]
+    buckets=[1, 15, 25, 35, 45, 60]
 )
 AVERAGE_RATING_GAUGE = Gauge("average_rating", "Average rating returned by the API")
 

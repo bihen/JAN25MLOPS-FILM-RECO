@@ -18,6 +18,8 @@ import joblib
 BASE_DIR = Path(__file__).resolve().parent.parent
 RAW_FOLDER = os.path.join(BASE_DIR, "data", "raw")
 PROCESSED_FOLDER = os.path.join(BASE_DIR, "data", "processed")
+REFERENCE_FOLDER = os.path.join(BASE_DIR, "data", "reference_data")
+
 
 # Define the project and workspace
 WORKSPACE_NAME = "movie_recommender_workspace"
@@ -35,7 +37,9 @@ def load_data():
     """
     ratings = pd.read_csv(os.path.join(RAW_FOLDER, "ratings.csv"))
     predictions = pd.read_csv(os.path.join(PROCESSED_FOLDER, "predictions.csv"))
-    return ratings, predictions
+    reference_ratings = pd.read_csv(os.path.join(REFERENCE_FOLDER, "ratings.csv"))
+    reference_predictions = pd.read_csv(os.path.join(REFERENCE_FOLDER, "predictions.csv"))
+    return ratings, predictions, reference_ratings, reference_predictions
 
 def create_report(workspace, reference_data, current_data, column_mapping, report_name):
     """
@@ -47,11 +51,10 @@ def create_report(workspace, reference_data, current_data, column_mapping, repor
         current_data=current_data.sort_index(),
         column_mapping=column_mapping
     )
-
     # Add the report to the workspace
     add_report_to_workspace(workspace, PROJECT_NAME, PROJECT_DESCRIPTION, report, report_name)
     return report
-
+    
 def add_report_to_workspace(workspace, project_name, project_description, report, report_name):
     """
     Adds a report to the workspace.
@@ -77,10 +80,14 @@ def check_for_drift(workspace):
     """
     Check for data drift and prediction drift
     """
-    ratings, predictions = load_data()
+    ratings, predictions, reference_ratings, reference_predictions = load_data()
 
     # Ensure that we match ratings with predictions based on the user and movie
-    merged_data = pd.merge(ratings[['userId', 'movieId', TARGET]], predictions[['user', 'movieId', PREDICTION]], 
+    merged_current_data = pd.merge(ratings[['userId', 'movieId', TARGET]], predictions[['user', 'movieId', PREDICTION]], 
+                           left_on=['userId', 'movieId'], right_on=['user', 'movieId'], how='inner')
+    
+    # Ensure that we match ratings with predictions based on the user and movie
+    merged_reference_data = pd.merge(reference_ratings[['userId', 'movieId', TARGET]], reference_predictions[['user', 'movieId', PREDICTION]], 
                            left_on=['userId', 'movieId'], right_on=['user', 'movieId'], how='inner')
 
     # Set up column mapping for Evidently
@@ -90,8 +97,8 @@ def check_for_drift(workspace):
     column_mapping.numerical_features = ['userId', 'movieId']  # Assuming these are numerical features
 
     # Split data for drift analysis
-    reference_data = merged_data.head(len(merged_data) // 2)  # The first half as reference data
-    current_data = merged_data.tail(len(merged_data) // 2)  # The second half as current data
+    reference_data = merged_reference_data
+    current_data = merged_current_data
 
     # Create the drift report
     drift_report = create_report(workspace, reference_data, current_data, column_mapping, "Data and Target Drift Report")
