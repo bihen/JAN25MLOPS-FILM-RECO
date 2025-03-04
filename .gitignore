@@ -10,3 +10,4 @@
 /config/secrets.json
 /config/users.json
 /curl_commands.txt
+/movie_recommender_workspace/*
