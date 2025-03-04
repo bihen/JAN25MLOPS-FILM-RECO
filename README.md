@@ -67,7 +67,8 @@ Folder Structure:
 
 Architecture
 ==============================
-![JAN25MLOPS-FILM-RECO Pipeline](https://github.com/user-attachments/assets/ee64eac8-872b-48e5-9f39-03f8dee8618e)
+![JAN25MLOPS-FILM-RECO Pipeline](https://github.com/user-attachments/assets/54dce1e1-ce2b-4810-99d3-9319ff8f5be9)
+
                             Figure 1. Pipeline for the project architecture
 
 
